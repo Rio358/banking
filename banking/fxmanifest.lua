@@ -11,11 +11,9 @@ client_scripts{
     '@PolyZone/EntityZone.lua',
     '@PolyZone/CircleZone.lua',
     '@PolyZone/ComboZone.lua',
-    "@mascotte-cache/client/cl_cache.lua",
 }
 
 server_scripts {
-    '@mysql-async/lib/MySQL.lua',
     'server.lua',
     'config.lua',
 }
