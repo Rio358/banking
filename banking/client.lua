@@ -17,14 +17,6 @@ local bankLocations = {
 	{i = 108, c = 0, x = 1175.0643310547, y = 2706.6435546875, z = 38.094036102295, s = 0.6, n = "Fleeca Bank"}
 }
 
-Citizen.CreateThread(function()
-    while Cache == nil do
-		TriggerEvent('mascotte-cache:getCacheData', function(CacheData) Cache = CacheData end)
-		Citizen.Wait(0)
-	end
-end)
-
-
 function openPlayersBank(type, color)
     local dict = 'anim@amb@prop_human_atm@interior@male@enter'
     local anim = 'enter'
@@ -90,11 +82,6 @@ exports['bt-target']:AddTargetModel(atmFleeca, {
             event = "banking:showMeMoney",
             icon = "fas fa-credit-card",
             label = "Use ATM",
-        },
-        {
-            event = "atmrobbery:RobDisBitch",
-            icon = "fas fa-dollar-sign",
-            label = "Rob ATM",
         },
     },
     job = {["all"] = { grade = 0}},
@@ -352,34 +339,6 @@ AddEventHandler('banking:showMeBankMoney', function()
     atATM = false
 end)
 
-RegisterNetEvent('atmrobbery:RobDisBitch')
-AddEventHandler('atmrobbery:RobDisBitch', function()
-    ESX.TriggerServerCallback('banking:canRob', function(res)
-        if res[1] then
-            busy = true
-            
-            local PP = PlayerPedId()
-            local coords = GetEntityCoords(PlayerPedId())
-            local data = {['code'] = '10-99', ['name'] = 'Robbery', ['style'] = 'police', ['desc'] = 'ATM Robbery', ['netid'] = nil, ['loc'] = coords, ['length'] = '15000', ['caller'] = 'Alarm'}
-            TriggerServerEvent('mdt:newCall', data.name, data.caller, vector3(data.loc.x, data.loc.y, data.loc.z), data)
-
-            TaskStartScenarioInPlace(PP, 'WORLD_HUMAN_STAND_MOBILE', 0, true)
-            Wait(2500)
-            TriggerEvent('mhacking:show')                            
-            TriggerEvent('mhacking:start', 4, 60, function(success)
-                TriggerEvent('mhacking:hide')
-                if success then
-                    TriggerServerEvent('banking:getMoney')
-                end
-                ClearPedTasks(PP)
-                busy = false
-            end)
-        else
-            exports['mythic_notify']:SendAlert('error', 'You require a different tool for this job.')
-        end
-    end)
-end)
-
 RegisterNetEvent('orp:bank:info')
 AddEventHandler('orp:bank:info', function(balance)
     local id = PlayerId()
@@ -461,17 +420,3 @@ function DisplayHelpText(str)
 	AddTextComponentString(str)
 	DisplayHelpTextFromStringLabel(0, 0, 1, -1)
 end
-
-RegisterNetEvent('banking:alert')
-AddEventHandler('banking:alert', function(coords)
-    local timer = GetGameTimer() + 12500
-    while GetGameTimer() <= timer do 
-        Wait(0)
-        AddTextEntry(GetCurrentResourceName(), Strings['Police'])
-        DisplayHelpTextThisFrame(GetCurrentResourceName(), false)
-        if IsControlJustReleased(0, 47) then
-            SetNewWaypoint(coords['x'], coords['y'])
-            break
-        end
-    end
-end)
